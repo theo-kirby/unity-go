@@ -16,6 +16,11 @@ public class goban : MonoBehaviour
     public Material[] colors;
     public GameObject go_stone;
     public int groupCounter;
+    public GameObject allGroups;
+    public Groups g;
+    public Stone[] stoneArray;
+    public int stoneArrayCounter =0;
+    
 
     private string empty = "empty";
     private string black = "black";
@@ -27,8 +32,24 @@ public class goban : MonoBehaviour
     private void Awake()
     {
         groupCounter = 0;
+
+        GameObject allGroups =  new GameObject("all_groups");
+        allGroups.AddComponent<Groups>();
+        Groups g = allGroups.GetComponent<Groups>();
+        g.stoneGroups = new Stone[20][];
+
+        int c =0;
+        foreach (var arr in g.stoneGroups)
+        {
+            g.stoneGroups[c] = new Stone[20];
+            c++;
+        }
+        Stone[] stoneArray = new Stone[20];
+        Stone s1 = playStone(black,9,9);
+        s1 = stoneArray[stoneArrayCounter];
+        g.addGroup(stoneArray);
+
         generateAllPoints(BOARD_SIZE);
-        playStone(black,9,9);
     }
 
     private void Update()

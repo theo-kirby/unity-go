@@ -30,7 +30,6 @@ public class Stone : MonoBehaviour
     public GameObject[] sides;
     public GameObject[,] points;
 
-
     public int[] libs = new int[4]{0,0,0,0};
     public int liberties = 0;
     public int libCount;
@@ -41,8 +40,7 @@ public class Stone : MonoBehaviour
         this.libCount = 0;
         this.points = points;
         string empty = "empty";
-        string black = "black";
-        string white = "white";
+
 
         Vector2Int coords = new Vector2Int(this.x,this.y);
         GameObject l = points[this.x-1,this.y];
@@ -67,13 +65,10 @@ public class Stone : MonoBehaviour
             {
                 this.libs[this.libCount] = 0;
                 this.libCount++;
+                // if (! this.checkGroup())
+                //     this.makeGroup();
 
-                foreach (var st in this.stoneSides)
-                    if (st != null)
-                        if (st.color == this.color)
-                            if (st.x == side.transform.position.x && st.y == side.transform.position.y)
-                                this.gLiberties += st.checkLiberties(points);
-                                
+        
             }
         }
         this.liberties = this.libs.Sum();
@@ -116,7 +111,17 @@ public class Stone : MonoBehaviour
                     Debug.Log("destroyed stone");
                 }
         return destroyed;
-                
+    }
+
+    public void checkGroup()
+    {
 
     }
+
+    // public GameObject makeGroup(GameObject allGroups)
+    // {
+    //     allGroups.AddComponent<Group>();
+    //     allGroups.AddComponent<Group>();
+    //     return allGroups;
+    // }
 }
