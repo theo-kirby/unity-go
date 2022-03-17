@@ -1,4 +1,116 @@
-         // private bool isGroupDead(Stone stone)
+
+
+    
+//         public int checkLiberties()
+//     {   
+//         int c = 0;
+//         foreach(Stone side in this.sides)
+//             if(side.empty)
+//             {
+//                 side.libertyArray[c] = 1;
+//                 c++;
+//             }
+//         this.liberties = this.libertyArray.Sum();
+//         return this.liberties;
+//     }
+    
+    
+    
+    // private void setStoneSides(Stone stone)
+    // {
+    //     stone.leftStone=stones[stone.x-1,stone.y];stone.rightStone=stones[stone.x+1,stone.y];stone.upStone=stones[stone.x,stone.y+1];stone.downStone=stones[stone.x,stone.y-1];
+    //     stone.sides = new Stone[4]{stone.leftStone,stone.rightStone,stone.upStone,stone.downStone};
+    // }
+
+
+
+
+
+
+
+
+
+
+ // private void killStones()
+    // {
+    //     for (int x=0;x<BOARD_SIZE;x++)
+    //         for (int y=0;y<BOARD_SIZE;y++)
+    //             if (stones[x,y].dead)
+    //                 Destroy(stones[x,y]);
+    // }
+
+
+
+    // private Stone[] getConnections(Stone stone)
+    // {
+    //     int connections = 0;
+    //     foreach (Stone side in stone.sides)
+    //         if (side.color == stone.color)
+    //         {
+    //             stone.connected[stone.connectionCount] = side;
+    //             getConnections(side);
+    //         }
+    //     return connections;
+    // }
+
+    // private void isDead(Stone stone)
+    // {
+    //     Stone[] stoneArray = new Stone[50];
+
+    //     int arrayCounter = 0;
+    //     int loopCounter = 0;
+
+    //     foreach (Stone side in stone.sides)
+    //     {
+    //         if (side.empty)
+    //         {
+    //             stone.libertyArray[counter] = 1;
+    //             counter++;
+    //         }
+    //     }
+    //     stone.liberties = stone.libertyArray.Sum();
+
+    //     if (stone.liberties == 0)
+    //     {
+    //         counter = 0;
+    //         foreach (Stone side in stone.sides)
+    //             if (side.color == stone.color)
+    //             {
+    //                 stoneArray[arrayCounter] = stone;
+    //                 arrayCounter++;
+    //                 stoneArray[arrayCounter] = side;
+    //                 arrayCounter++;
+    //             }
+
+
+
+    //     }
+
+    // }
+
+
+
+
+
+
+
+
+        // points[x,y].tag=color;        
+        // stone.tag=color;
+
+
+
+
+
+
+
+
+
+
+
+
+
+// private bool isGroupDead(Stone stone)
     // {
     //     int dsc = 0;
 

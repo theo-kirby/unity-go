@@ -10,7 +10,7 @@ public class goban : MonoBehaviour
 
     private const int BOARD_SIZE = 19;
 
-    private Stone[,] stones;
+    public Stone[,] stones;
     public GameObject[,] points;
 
     public Camera currentCamera;
@@ -26,7 +26,6 @@ public class goban : MonoBehaviour
         generateAllStones(BOARD_SIZE);
         deadStones = new Stone[50];
     }
-
     private void Update()
     {
         RaycastHit info;
@@ -43,7 +42,6 @@ public class goban : MonoBehaviour
                 stones[hitposition.x,hitposition.y] = playStone(white,hitposition.x,hitposition.y);
         }
     }
-
     private GameObject generateOnePoint(int x, int y)
     {
         GameObject point = new GameObject(string.Format("point#({0},{1})",x,y),typeof(BoxCollider));
@@ -53,13 +51,6 @@ public class goban : MonoBehaviour
         point.tag=empty;
 
         return point;
-    }
-    private void generateAllPoints(int boardSize)
-    {
-        points = new GameObject[boardSize,boardSize];
-        for (int x=0;x<boardSize;x++)
-            for (int y=0;y<boardSize;y++)
-                points[x,y] = generateOnePoint(x,y);
     }
     private Stone generateOneStone(int x, int y)
     {
@@ -71,6 +62,13 @@ public class goban : MonoBehaviour
         stone.dead = true;
 
         return stone;
+    }
+    private void generateAllPoints(int boardSize)
+    {
+        points = new GameObject[boardSize,boardSize];
+        for (int x=0;x<boardSize;x++)
+            for (int y=0;y<boardSize;y++)
+                points[x,y] = generateOnePoint(x,y);
     }
     private void generateAllStones(int boardSize)
     {
@@ -87,11 +85,6 @@ public class goban : MonoBehaviour
                     return new Vector2Int(x,y);
         return -Vector2Int.one;
     }
-    private void setStoneSides(Stone stone)
-    {
-        stone.leftStone=stones[stone.x-1,stone.y];stone.rightStone=stones[stone.x+1,stone.y];stone.upStone=stones[stone.x,stone.y+1];stone.downStone=stones[stone.x,stone.y-1];
-        stone.sides = new Stone[4]{stone.leftStone,stone.rightStone,stone.upStone,stone.downStone};
-    }
     private Stone spawnStone(string color, int x, int y)
     {
         Stone stone = Instantiate(go_stone).GetComponent<Stone>();
@@ -102,59 +95,40 @@ public class goban : MonoBehaviour
         stone.transform.position += temp;
         return stone;
     }
-
     private Stone playStone(string color, int x, int y)
     {        
         Stone stone = spawnStone(color,x,y);
 
         stones[x,y] = stone;
 
-        setStoneSides(stone);
-
-        foreach (Stone s in stone.sides)
-            setStoneSides(s);
+        stone.setDirections();
 
         return stone;
     }
-
-    private void killStones(Stone[,] stones)
+    private void getLibertiesOfAdjacent(Stone stone)
     {
-        for (int x=0;x<BOARD_SIZE;x++)
-            for (int y=0;y<BOARD_SIZE;y++)
-                if (stones[x,y].dead)
-                    Destroy(stones[x,y]);
-    }
-
-    private void isDead(Stone stone)
-    {
-        foreach (Stone side in stone.sides)
+        foreach (var side in stone.directions)
         {
-            if (side.empty)
-            {
-                stone.liberties[counter] = 1;
-            }
-
-            if (side.color == stone.color)
-            {
-                stone.liberties[counter] = 0;
-            }
-
-            if (side.color != stone.color)
-            {
-                stone.liberties[counter = 0];
-            }
-
-            
-
+            getLiberties(side);
         }
     }
+    private bool getLiberties(Stone stone)
+    {
+        foreach (var l in stone.directions)
 
-
-
-
-
+            if (stones[l].empty)
+            {
+                return true;
+            }
+            if (stones[l].color == stone.color)
+            {
+                foreach(var s in stones[l].directions)
+                    getLiberties(s);
+            }
+        return false;
+        
+    }
+            
+        
 }
 
-
-        // points[x,y].tag=color;        
-        // stone.tag=color;
