@@ -1,6 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+
 
 public class goban : MonoBehaviour
 {
@@ -100,7 +102,8 @@ public class goban : MonoBehaviour
         stone.transform.SetParent(points[x,y].transform);
 
         setConnections(points[x,y]);
-        killSurrounding(points[x,y]);
+        getGroup(p);
+        Debug.Log("played stone at ("+x+","+y+")");
 
 
         return stone;
@@ -110,88 +113,142 @@ public class goban : MonoBehaviour
     {
         Stone stone = point.transform.GetChild(0).GetComponent<Stone>();
         int x = stone.x;
-        float y = stone.y;
+        int y = stone.y;
         string team = point.tag;
 
-        List<GameObject> neighbors = new List<GameObject>();
+        List<Point> neighbors = new List<Point>();
 
-        GameObject north = points[(int)x,(int)y+1];
-        neighbors.Add(north);
-        GameObject east = points[(int)x+1,(int)y];
-        neighbors.Add(east);
-        GameObject south = points[(int)x,(int)y-1];
-        neighbors.Add(south);
-        GameObject west = points[(int)x-1,(int)y];
-        neighbors.Add(west);
+        if (y+1 >= 0 && y+1 <= 18)
+        {Point north = points[(int)x,(int)y+1].GetComponent<Point>();neighbors.Add(north);}
+        if (x+1 >= 0 && x+1 <= 18)
+        {Point east = points[(int)x+1,(int)y].GetComponent<Point>();neighbors.Add(east);}
+        if (y-1 >= 0 && y-1 <= 18)
+        {Point south = points[(int)x,(int)y-1].GetComponent<Point>();neighbors.Add(south);}
+        if (x-1 >= 0 && x-1 <= 18)
+        {Point west = points[(int)x-1,(int)y].GetComponent<Point>();neighbors.Add(west);}
 
-        foreach (GameObject n in neighbors)
+        foreach (Point n in neighbors)
         {
-            if (n.tag == team)
+            GameObject go = n.gameObject;
+            if (go.tag == team)
             {
-                if (!point.GetComponent<Point>().connections.Contains(n))
-                    point.GetComponent<Point>().connections.Add(n);
-                if (!n.GetComponent<Point>().connections.Contains(point))
-                    n.GetComponent<Point>().connections.Add(point);
+                if (!point.GetComponent<Point>().connections.Contains(go.GetComponent<Point>()))
+                    point.GetComponent<Point>().connections.Add(go.GetComponent<Point>());
+                if (!go.GetComponent<Point>().connections.Contains(point.GetComponent<Point>()))
+                    go.GetComponent<Point>().connections.Add(point.GetComponent<Point>());
             }
         }
     }
 
-    public GameObject killSurrounding(GameObject point)
+    
+
+
+    
+    public HashSet<Point> getGroup(Point point)
     {
-        Stone stone = point.transform.GetChild(0).GetComponent<Stone>();
-        int x = stone.x;
-        float y = stone.y;
-        string team = point.tag;
-
-        List<GameObject> neighbors = new List<GameObject>();
-
-        GameObject north = points[(int)x,(int)y+1];
-        neighbors.Add(north);
-        GameObject east = points[(int)x+1,(int)y];
-        neighbors.Add(east);
-        GameObject south = points[(int)x,(int)y-1];
-        neighbors.Add(south);
-        GameObject west = points[(int)x-1,(int)y];
-        neighbors.Add(west);
-
-        foreach (GameObject n in neighbors)
-        {
-            Point p = n.GetComponent<Point>();
-
-            if (n.tag == empty)
-                break;
-            else if (n.tag == team)
-                killSurrounding(n);
-            else
-                foreach (GameObject connection in p.connections) 
-                {
-                    if (connection.tag == "empty")
-                        return connection;
-                    
-                    else if (connection.tag != n.tag)
-                        break;
-
-                    else if (connection.tag == n.tag)
-                        killSurrounding(connection);
-                }
-            destroyConnections(n);                
-        }
-        return null;
-    }
-
-    public void destroyConnections(GameObject point)
-    {
+        HashSet<Point> visited = new HashSet<Point>();
         
-        Point p = point.GetComponent<Point>();
+        if (point.connections.Contains(point))
+                return visited;
+            
+        var queue = new Queue<Point>();
+        queue.Enqueue(point);
 
-        foreach (GameObject connection in p.connections)
-            Destroy(connection.transform.GetChild(0).gameObject);
-        //Destroy(stone);
-        //Destroy(point.transform.GetChild(0));
+        while (queue.Count > 0) {
+            var vertex = queue.Dequeue();
+
+            if (visited.Contains(vertex))
+                {continue;}
+
+            visited.Add(vertex);
+
+            foreach(Point neighbor in vertex.connections)
+                if (!visited.Contains(neighbor))
+                    queue.Enqueue(neighbor);
+        }
+        Debug.Log(visited.Count);
+        return visited;
     }
 
 }
 
+// public GameObject killSurrounding(GameObject point)
+//     {
+//         Stone stone = point.transform.GetChild(0).GetComponent<Stone>();
+//         int x = stone.x;
+//         float y = stone.y;
+//         string team = point.tag;
+
+//         List<GameObject> neighbors = new List<GameObject>();
+
+//         if (y+1 >= 0 && y+1 <= 18)
+//         {GameObject north = points[(int)x,(int)y+1];neighbors.Add(north);}
+//         if (x+1 >= 0 && x+1 <= 18)
+//         {GameObject east = points[(int)x+1,(int)y];neighbors.Add(east);}
+//         if (y-1 >= 0 && y-1 <= 18)
+//         {GameObject south = points[(int)x,(int)y-1];neighbors.Add(south);}
+//         if (x-1 >= 0 && x-1 <= 18)
+//         {GameObject west = points[(int)x-1,(int)y];neighbors.Add(west);}
+
+//         foreach (GameObject n in neighbors)
+//         {
+//             Point p = n.GetComponent<Point>();
+
+//             if (n.tag == empty)
+//                 break;
+//             else if (n.tag == team)
+//                 killSurrounding(n);
+//             else
+//                 foreach (GameObject connection in p.connections) 
+//                 {
+//                     if (connection.tag == "empty")
+//                         return connection;
+                    
+//                     else if (connection.tag == n.tag)
+//                         killSurrounding(connection);
+
+//                     else if (connection.tag != n.tag)
+//                         break;
+//                 }
+//             destroyConnections(n);                
+//         }
+//         return null;
+//     }
+
+//     public void destroyConnections(GameObject point)
+//     {
+        
+//         Point p = point.GetComponent<Point>();
+
+//         List<GameObject> group = new List<GameObject>();
+
+//         foreach (GameObject connection in p.connections)
+//         {
+//             if (!group.Contains(connection))
+//                 group.Add(connection);
+
+//         }
+//     }
+
+
+
+
+//     public void destroyConnections(GameObject point)
+//     {
+        
+//         Point p = point.GetComponent<Point>();
+
+//         foreach (GameObject connection in p.connections)
+//         {
+//             Destroy(connection.transform.GetChild(0).gameObject);
+//             connection.tag = empty;
+//             Point c = connection.GetComponent<Point>();
+//             c.connections.Clear();
+//             Debug.Log("destroyed stone at ("+connection.transform.position.x+","+connection.transform.position.y+")");
+//         }
+//     }
+
+// }
 
 // private List<GameObject> getConnected(Stone stone)
 //     {
