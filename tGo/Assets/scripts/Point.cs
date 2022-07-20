@@ -6,7 +6,7 @@ public class Point : MonoBehaviour
 {
     public Stone stone;
     public List<Point> connections = new List<Point>();
-    public List<GameObject> group = new List<GameObject>();
+    public List<Point> group = new List<Point>();
 
 
 

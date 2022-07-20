@@ -102,9 +102,20 @@ public class goban : MonoBehaviour
         stone.transform.SetParent(points[x,y].transform);
 
         setConnections(points[x,y]);
-        getGroup(p);
+        //getGroup(p);
         Debug.Log("played stone at ("+x+","+y+")");
 
+        if (y+1 >= 0 && y+1 <= 18)
+        {getGroup(points[x,y+1].GetComponent<Point>());}
+        if (x+1 >= 0 && x+1 <= 18)
+        {getGroup(points[x+1,y].GetComponent<Point>());}
+        if (y-1 >= 0 && y-1 <= 18)
+        {getGroup(points[x,y-1].GetComponent<Point>());}
+        if (x-1 >= 0 && x-1 <= 18)
+        {getGroup(points[x-1,y].GetComponent<Point>());}
+
+        Point test = points[x,y+1].GetComponent<Point>();
+        Debug.Log(validGroup(test.connections));
 
         return stone;
     }
@@ -161,15 +172,53 @@ public class goban : MonoBehaviour
                 {continue;}
 
             visited.Add(vertex);
+            point.group.Add(vertex);
 
             foreach(Point neighbor in vertex.connections)
                 if (!visited.Contains(neighbor))
                     queue.Enqueue(neighbor);
         }
         Debug.Log(visited.Count);
+
         return visited;
     }
 
+    public bool validGroup(List<Point> group)
+    {
+        foreach (Point p in group)
+        {
+
+        int x = (int)p.gameObject.transform.position.x;
+        int y = (int)p.gameObject.transform.position.y;
+
+        List<Point> neighbors = new List<Point>();
+
+        if (y+1 >= 0 && y+1 <= 18)
+        {Point north = points[(int)x,(int)y+1].GetComponent<Point>();neighbors.Add(north);}
+        if (x+1 >= 0 && x+1 <= 18)
+        {Point east = points[(int)x+1,(int)y].GetComponent<Point>();neighbors.Add(east);}
+        if (y-1 >= 0 && y-1 <= 18)
+        {Point south = points[(int)x,(int)y-1].GetComponent<Point>();neighbors.Add(south);}
+        if (x-1 >= 0 && x-1 <= 18)
+        {Point west = points[(int)x-1,(int)y].GetComponent<Point>();neighbors.Add(west);}
+
+        foreach (Point n in neighbors)
+        {
+            GameObject go = n.gameObject;
+            if (go.tag == empty)
+            {
+                Debug.Log("true");
+                return true;     
+            }       
+        }
+
+        Debug.Log("false");
+        return false;
+        }
+
+    Debug.Log("FAIL");
+    return false;
+    }
 }
 
 // public GameObject killSurrounding(GameObject point)
