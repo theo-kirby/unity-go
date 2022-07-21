@@ -75,14 +75,6 @@ public class goban : MonoBehaviour
         return -Vector2Int.one;
     }
 
-    // private void scan(int x, int y)
-    // {
-    //     string color = points[x,y].tag;
-    //     Debug.Log(color);
-    //     for (int i=0; i++; i<4)
-    //         if (points)
-    // }
-
     private Stone playStone(string color, int x, int y)
     {        
         Stone stone = Instantiate(go_stone).GetComponent<Stone>();
@@ -95,6 +87,7 @@ public class goban : MonoBehaviour
 
         Vector3 temp = new Vector3(x,0,y);
         stone.transform.position += temp;
+        Debug.Log("Played stone at ("+x+","+y+")");
         points[x,y].tag = color;
         stones[x,y] = stone;
         Point p = points[x,y].GetComponent<Point>();
@@ -102,22 +95,23 @@ public class goban : MonoBehaviour
         stone.transform.SetParent(points[x,y].transform);
 
         setConnections(points[x,y]);
-        //getGroup(p);
-        Debug.Log("played stone at ("+x+","+y+")");
+        getGroup(p);
+        sendGroup(p);
 
-        if (y+1 >= 0 && y+1 <= 18)
-        {getGroup(points[x,y+1].GetComponent<Point>());}
-        if (x+1 >= 0 && x+1 <= 18)
-        {getGroup(points[x+1,y].GetComponent<Point>());}
-        if (y-1 >= 0 && y-1 <= 18)
-        {getGroup(points[x,y-1].GetComponent<Point>());}
-        if (x-1 >= 0 && x-1 <= 18)
-        {getGroup(points[x-1,y].GetComponent<Point>());}
-
-        Point test = points[x,y+1].GetComponent<Point>();
-        Debug.Log(validGroup(test.connections));
-
+        // GameObject north = points[x,y+1];
+        // getGroup(north.GetComponent<Point>());
+        // Debug.Log(validGroup(north.GetComponent<Point>().group));
         return stone;
+
+        // if (y+1 >= 0 && y+1 <= 18)
+        // {getGroup(points[x,y+1].GetComponent<Point>());}
+        // if (x+1 >= 0 && x+1 <= 18)
+        // {getGroup(points[x+1,y].GetComponent<Point>());}
+        // if (y-1 >= 0 && y-1 <= 18)
+        // {getGroup(points[x,y-1].GetComponent<Point>());}
+        // if (x-1 >= 0 && x-1 <= 18)
+        // {getGroup(points[x-1,y].GetComponent<Point>());} 
+
     }
 
     public void setConnections(GameObject point)
@@ -152,9 +146,6 @@ public class goban : MonoBehaviour
     }
 
     
-
-
-    
     public HashSet<Point> getGroup(Point point)
     {
         HashSet<Point> visited = new HashSet<Point>();
@@ -165,7 +156,8 @@ public class goban : MonoBehaviour
         var queue = new Queue<Point>();
         queue.Enqueue(point);
 
-        while (queue.Count > 0) {
+        while (queue.Count > 0)
+        {
             var vertex = queue.Dequeue();
 
             if (visited.Contains(vertex))
@@ -178,16 +170,25 @@ public class goban : MonoBehaviour
                 if (!visited.Contains(neighbor))
                     queue.Enqueue(neighbor);
         }
-        Debug.Log(visited.Count);
 
         return visited;
+    }
+
+    public void sendGroup(Point point)
+    {
+        foreach (Point member in point.group)
+        {
+            foreach (Point p in point.group)
+            if (!member.group.Contains(p))
+                member.group.Add(p);
+        }
     }
 
     public bool validGroup(List<Point> group)
     {
         foreach (Point p in group)
         {
-
+        Debug.Log(p.gameObject.name);
         int x = (int)p.gameObject.transform.position.x;
         int y = (int)p.gameObject.transform.position.y;
 
@@ -202,21 +203,16 @@ public class goban : MonoBehaviour
         if (x-1 >= 0 && x-1 <= 18)
         {Point west = points[(int)x-1,(int)y].GetComponent<Point>();neighbors.Add(west);}
 
-        foreach (Point n in neighbors)
+        foreach (Point neighbor in neighbors)
         {
-            GameObject go = n.gameObject;
+            GameObject go = neighbor.gameObject;
             if (go.tag == empty)
             {
-                Debug.Log("true");
+                Debug.Log(go.name);
                 return true;     
             }       
         }
-
-        Debug.Log("false");
-        return false;
         }
-
-    Debug.Log("FAIL");
     return false;
     }
 }
