@@ -92,37 +92,26 @@ public class goban : MonoBehaviour
         points[x,y].tag = color;
         stones[x,y] = stone;
         Point p = points[x,y].GetComponent<Point>();
-        p.stone = stone;
+        p.x=stone.x;p.y=stone.y;p.stone=stone;
         stone.transform.SetParent(points[x,y].transform);
 
-        setConnections(points[x,y]);
+        setConnections(p);
         getGroup(p);
         sendGroup(p);
-        Debug.Log(isGroupValid(p));
-
-        // GameObject north = points[x,y+1];
-        // getGroup(north.GetComponent<Point>());
-        // Debug.Log(validGroup(north.GetComponent<Point>().group));
+        getNeighbors(p);
+        getReach(p);
+        sendReach(p);
+        validGroup(p);
 
         return stone;
-
-        // if (y+1 >= 0 && y+1 <= 18)
-        // {getGroup(points[x,y+1].GetComponent<Point>());}
-        // if (x+1 >= 0 && x+1 <= 18)
-        // {getGroup(points[x+1,y].GetComponent<Point>());}
-        // if (y-1 >= 0 && y-1 <= 18)
-        // {getGroup(points[x,y-1].GetComponent<Point>());}
-        // if (x-1 >= 0 && x-1 <= 18)
-        // {getGroup(points[x-1,y].GetComponent<Point>());} 
-
     }
 
-    public void setConnections(GameObject point)
+    public void setConnections(Point point)
     {
-        Stone stone = point.transform.GetChild(0).GetComponent<Stone>();
+        Stone stone = point.gameObject.transform.GetChild(0).GetComponent<Stone>();
         int x = stone.x;
         int y = stone.y;
-        string team = point.tag;
+        string team = point.gameObject.tag;
 
         List<Point> neighbors = new List<Point>();
 
@@ -148,7 +137,6 @@ public class goban : MonoBehaviour
         }
     }
 
-    
     public HashSet<Point> getGroup(Point point)
     {
         HashSet<Point> visited = new HashSet<Point>();
@@ -193,42 +181,125 @@ public class goban : MonoBehaviour
             }
         }
     }
-    
 
-    public bool isGroupValid(Point point)
+    public void getNeighbors(Point point)
     {
-        List<Point> reached = new List<Point>();
-
-        foreach (Point p in point.group)
+        if (point.y+1 < 19)
         {
-        List<Point> neighbors = new List<Point>();
-        int x = (int)point.gameObject.transform.position.x;
-        int y = (int)point.gameObject.transform.position.x;
-
-        if (y+1 <= 18)
-        {Point north = points[(int)x,(int)y+1].GetComponent<Point>();
-        neighbors.Add(north);}
-        if (x+1 <= 18)
-        {Point east = points[(int)x+1,(int)y].GetComponent<Point>();
-        neighbors.Add(east);}
-        if (y-1 >= 0)
-        {Point south = points[(int)x,(int)y-1].GetComponent<Point>();
-        neighbors.Add(south);}
-        if (x-1 >= 0)
-        {Point west = points[(int)x-1,(int)y].GetComponent<Point>();
-        neighbors.Add(west);}
-        
-            foreach(Point n in neighbors)
-                reached.Add(n);
+            Point north = points[(int)point.x,(int)point.y+1].GetComponent<Point>();
+            point.neighbors.Add(north);
         }
+        if (point.x+1 < 19)
+        {
+            Point east = points[(int)point.x+1,(int)point.y].GetComponent<Point>();
+            point.neighbors.Add(east);
+        }
+        if (point.y-1 > -1)
+        {
+            Point south = points[(int)point.x,(int)point.y-1].GetComponent<Point>();
+            point.neighbors.Add(south);
+        }
+        if (point.x-1 > -1)
+        {
+            Point west = points[(int)point.x-1,(int)point.y].GetComponent<Point>();
+            point.neighbors.Add(west);
+        }
+    }    
 
-        foreach (Point p in reached)
-            if (p.gameObject.tag == empty)
-                return true;
-        return false;
+    public void getReach(Point point)
+    {
+        foreach (Point member in point.group)
+            foreach( Point neighbor in member.neighbors)
+                if (!point.reached.Contains(neighbor))
+                    point.reached.Add(neighbor);
+    }
+
+    public void sendReach(Point point)
+    {
+        foreach (Point member in point.group)
+            foreach (Point p in point.reached)
+                if (!member.reached.Contains(p))
+                    member.reached.Add(p);
+    }
+
+    public void validGroup(Point point)
+    {
+        bool libertyFound = false;
+        foreach (Point reach in point.reached)
+            if (reach.gameObject.tag == empty)
+                libertyFound = true;
+        if (libertyFound)
+            Debug.Log("true");
+        else
+            Debug.Log("false");
+        
     }
 
 }
+
+
+    //    public void getReach(Point point)
+    // {
+    //     foreach (Point member in point.group)
+    //     {
+    //         List<Point> neighbors = new List<Point>();
+    //         int x = (int)member.gameObject.transform.position.x;
+    //         int y = (int)member.gameObject.transform.position.x;
+
+    //         if (y+1 <= 18)
+    //         {Point north = points[(int)x,(int)y+1].GetComponent<Point>();
+    //         neighbors.Add(north);}
+    //         if (x+1 <= 18)
+    //         {Point east = points[(int)x+1,(int)y].GetComponent<Point>();
+    //         neighbors.Add(east);}
+    //         if (y-1 >= 0)
+    //         {Point south = points[(int)x,(int)y-1].GetComponent<Point>();
+    //         neighbors.Add(south);}
+    //         if (x-1 >= 0)
+    //         {Point west = points[(int)x-1,(int)y].GetComponent<Point>();
+    //         neighbors.Add(west);}
+
+    //         foreach(Point neighbor in neighbors)
+    //             if (!point.reached.Contains(neighbor))
+    //                 point.reached.Add(neighbor);
+
+    //     }
+        
+    // }
+    //public bool isGroupValid(Point point)
+    // {
+    //     List<Point> reached = new List<Point>();
+    //     reached.Add(point);
+
+    //     foreach (Point p in point.group)
+    //     {
+    //         List<Point> neighbors = new List<Point>();
+    //         int x = (int)point.gameObject.transform.position.x;
+    //         int y = (int)point.gameObject.transform.position.x;
+
+    //         if (y+1 <= 18)
+    //         {Point north = points[(int)x,(int)y+1].GetComponent<Point>();
+    //         neighbors.Add(north);}
+    //         if (x+1 <= 18)
+    //         {Point east = points[(int)x+1,(int)y].GetComponent<Point>();
+    //         neighbors.Add(east);}
+    //         if (y-1 >= 0)
+    //         {Point south = points[(int)x,(int)y-1].GetComponent<Point>();
+    //         neighbors.Add(south);}
+    //         if (x-1 >= 0)
+    //         {Point west = points[(int)x-1,(int)y].GetComponent<Point>();
+    //         neighbors.Add(west);}
+        
+    //         foreach(Point n in neighbors)
+    //             reached.Add(n);
+    //     }
+
+    //     foreach (Point r in reached)
+    //         if (r.gameObject.tag == empty)
+    //             return true;
+                
+    //     return false;
+    // }
 //     public bool isGroupValid(Point point)
 //     {
 //         int x = (int)point.gameObject.transform.position.x;
