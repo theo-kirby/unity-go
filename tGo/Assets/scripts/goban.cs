@@ -3,6 +3,28 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+// Tromp-Taylor rules via Sensei's Library
+// Go is played on a 19x19 square grid of points, by two players called Black and White.
+    // the 19 x 19 square grid is constructed via a 2 dimensional array of gameobjects
+    // each gameobject contains a Point class, which keeps track of the point's stone, adjacent stones(neighbors), & connected stones(group) 
+// Each point on the grid may be colored black, white or empty.
+    // the color of the stone occupying each point is kept track of in the point class
+// A point P, not colored C, is said to reach C, if there is a path of (vertically or horizontally) adjacent points of P’s color from P to a point of color C.
+    // the getGroup function implements a breadth first search algorithm to find all of the stones that are connected vertically or horizontally to any given stone
+// Clearing a color is the process of emptying all points of that color that don’t reach empty.
+    // the getReach and validGroup functions together calculate the 'reach' of a group of stones, which contains all of the liberties of the group
+// Starting with an empty grid, the players alternate turns, starting with Black.
+    // todo
+// A turn is either a pass; or a move that doesn’t repeat an earlier grid coloring.[1]
+    // todo
+// A move consists of coloring an empty point one’s own color; then clearing the opponent color, and then clearing one’s own color.
+    // the playStone function assigns a stone of the players color to one of the points in the array; the checkNeighbors finctionm
+// The game ends after two consecutive passes.
+    // todo
+// A player’s score is the number of points of her color, plus the number of empty points that reach only her color.
+    // todo
+// The player with the higher score at the end of the game is the winner. Equal scores result in a tie.
+    // todo
 
 
 public class goban : MonoBehaviour
@@ -21,8 +43,6 @@ public class goban : MonoBehaviour
     private string empty = "empty";
     private string black = "black";
     private string white = "white";
-
-
 
     private void Awake()
     {
@@ -66,7 +86,6 @@ public class goban : MonoBehaviour
                 points[x,y] = generateOnePoint(x,y);
     }
 
-
     private Vector2Int getPointIndex(GameObject hitInfo)
     {
         for (int x=0; x< BOARD_SIZE; x++)
@@ -95,14 +114,9 @@ public class goban : MonoBehaviour
         p.x=stone.x;p.y=stone.y;p.stone=stone;
         stone.transform.SetParent(points[x,y].transform);
 
-        setConnections(p);
-        getGroup(p);
-        sendGroup(p);
-        getNeighbors(p);
-        getReach(p);
-        sendReach(p);
-        validGroup(p);
-
+        connectStones(p);
+        checkNeighbors(p);
+    
         return stone;
     }
 
@@ -222,316 +236,38 @@ public class goban : MonoBehaviour
                     member.reached.Add(p);
     }
 
-    public void validGroup(Point point)
+    public bool validGroup(Point point)
     {
         bool libertyFound = false;
         foreach (Point reach in point.reached)
             if (reach.gameObject.tag == empty)
                 libertyFound = true;
         if (libertyFound)
-            Debug.Log("true");
+            return true;
         else
-            Debug.Log("false");
-        
+            return false;
     }
 
+    public void killGroup(Point point)
+    {
+        foreach (Point member in point.group)
+            Destroy(member.gameObject);
+    }
+
+    public void connectStones(Point point)
+    {
+        setConnections(point);
+        getGroup(point);
+        sendGroup(point);
+        getNeighbors(point);
+        getReach(point);
+        sendReach(point);
+    }
+
+    public void checkNeighbors(Point point)
+    {
+        foreach (Point neighbor in point.neighbors)
+            if (!validGroup(neighbor))
+                killGroup(neighbor);
+    }
 }
-
-
-    //    public void getReach(Point point)
-    // {
-    //     foreach (Point member in point.group)
-    //     {
-    //         List<Point> neighbors = new List<Point>();
-    //         int x = (int)member.gameObject.transform.position.x;
-    //         int y = (int)member.gameObject.transform.position.x;
-
-    //         if (y+1 <= 18)
-    //         {Point north = points[(int)x,(int)y+1].GetComponent<Point>();
-    //         neighbors.Add(north);}
-    //         if (x+1 <= 18)
-    //         {Point east = points[(int)x+1,(int)y].GetComponent<Point>();
-    //         neighbors.Add(east);}
-    //         if (y-1 >= 0)
-    //         {Point south = points[(int)x,(int)y-1].GetComponent<Point>();
-    //         neighbors.Add(south);}
-    //         if (x-1 >= 0)
-    //         {Point west = points[(int)x-1,(int)y].GetComponent<Point>();
-    //         neighbors.Add(west);}
-
-    //         foreach(Point neighbor in neighbors)
-    //             if (!point.reached.Contains(neighbor))
-    //                 point.reached.Add(neighbor);
-
-    //     }
-        
-    // }
-    //public bool isGroupValid(Point point)
-    // {
-    //     List<Point> reached = new List<Point>();
-    //     reached.Add(point);
-
-    //     foreach (Point p in point.group)
-    //     {
-    //         List<Point> neighbors = new List<Point>();
-    //         int x = (int)point.gameObject.transform.position.x;
-    //         int y = (int)point.gameObject.transform.position.x;
-
-    //         if (y+1 <= 18)
-    //         {Point north = points[(int)x,(int)y+1].GetComponent<Point>();
-    //         neighbors.Add(north);}
-    //         if (x+1 <= 18)
-    //         {Point east = points[(int)x+1,(int)y].GetComponent<Point>();
-    //         neighbors.Add(east);}
-    //         if (y-1 >= 0)
-    //         {Point south = points[(int)x,(int)y-1].GetComponent<Point>();
-    //         neighbors.Add(south);}
-    //         if (x-1 >= 0)
-    //         {Point west = points[(int)x-1,(int)y].GetComponent<Point>();
-    //         neighbors.Add(west);}
-        
-    //         foreach(Point n in neighbors)
-    //             reached.Add(n);
-    //     }
-
-    //     foreach (Point r in reached)
-    //         if (r.gameObject.tag == empty)
-    //             return true;
-                
-    //     return false;
-    // }
-//     public bool isGroupValid(Point point)
-//     {
-//         int x = (int)point.gameObject.transform.position.x;
-//         int y = (int)point.gameObject.transform.position.x;
-//         string team = point.gameObject.tag;
-//         string opponent = "";
-//         bool libertyFound = false;
-//         List<Point> neighbors = new List<Point>();
-
-//         if (team == white)
-//             opponent = black;
-//         else if (team == black)
-//             opponent = white;
-        
-//         if (y+1 >= 0 && y+1 <= 18)
-//         {Point north = points[(int)x,(int)y+1].GetComponent<Point>();
-//         neighbors.Add(north);}
-//         if (x+1 >= 0 && x+1 <= 18)
-//         {Point east = points[(int)x+1,(int)y].GetComponent<Point>();
-//         neighbors.Add(east);}
-//         if (y-1 >= 0 && y-1 <= 18)
-//         {Point south = points[(int)x,(int)y-1].GetComponent<Point>();
-//         neighbors.Add(south);}
-//         if (x-1 >= 0 && x-1 <= 18)
-//         {Point west = points[(int)x-1,(int)y].GetComponent<Point>();
-//         neighbors.Add(west);}
-
-//         if (point.dupGroup.Count == 0)
-//             foreach (Point neighbor in neighbors)
-//             {
-//                 if (neighbor.gameObject.tag == empty)
-//                     libertyFound = true;
-//             }
-
-//         else if (point.dupGroup.Count > 0)
-//         {
-//             List<Point> dg = new List<Point>(point.dupGroup);
-//             foreach (Point p in dg)
-//             {
-//                 p.dupGroup.Remove(point);
-//                 isGroupValid(p);
-//             }
-//         }
-        
-//         if (libertyFound)
-//             return true;
-//         else
-//             return false;
-
-//     }
-// }
-
-
-
-
-
-
-
- // public bool validGroup(List<Point> group)
-    // {
-    //     bool libertyFound = false;
-    //     foreach (Point p in group)
-    //     {
-        
-        
-    //     int x = (int)p.gameObject.transform.position.x;
-    //     int y = (int)p.gameObject.transform.position.y;
-
-    //     List<Point> neighbors = new List<Point>();
-
-    //     if (y+1 >= 0 && y+1 <= 18)
-    //     {Point north = points[(int)x,(int)y+1].GetComponent<Point>();neighbors.Add(north);}
-    //     if (x+1 >= 0 && x+1 <= 18)
-    //     {Point east = points[(int)x+1,(int)y].GetComponent<Point>();neighbors.Add(east);}
-    //     if (y-1 >= 0 && y-1 <= 18)
-    //     {Point south = points[(int)x,(int)y-1].GetComponent<Point>();neighbors.Add(south);}
-    //     if (x-1 >= 0 && x-1 <= 18)
-    //     {Point west = points[(int)x-1,(int)y].GetComponent<Point>();neighbors.Add(west);}
-        
-        
-    //     while (!libertyFound)
-    //     {
-    //         foreach (Point neighbor in neighbors)
-    //         {
-    //             if (neighbor.gameObject.tag == empty)
-    //             {
-    //                 Debug.Log(neighbor.gameObject.name);
-    //                 libertyFound = true;
-    //             }
-    //             else if (neighbor.gameObject.tag == black)
-    //                 continue;
-    //             else if (neighbor.gameObject.tag == white)
-    //                 continue;
-    //         }
-    //     }
-        
-    //     }
-    // if (libertyFound)
-    //     return true;
-    // else
-    //     return false;
-    // }
-
-
-
-
-
-
-
-
-
-
-    //     foreach (Point neighbor in neighbors)
-    //     {
-    //         GameObject go = neighbor.gameObject;
-    //         if (go.tag == empty)
-    //         {
-    //             Debug.Log(go.name);
-    //             return true;     
-    //         }       
-    //     }
-    //     }
-    // return false;
-    
-
-
-// public GameObject killSurrounding(GameObject point)
-//     {
-//         Stone stone = point.transform.GetChild(0).GetComponent<Stone>();
-//         int x = stone.x;
-//         float y = stone.y;
-//         string team = point.tag;
-
-//         List<GameObject> neighbors = new List<GameObject>();
-
-//         if (y+1 >= 0 && y+1 <= 18)
-//         {GameObject north = points[(int)x,(int)y+1];neighbors.Add(north);}
-//         if (x+1 >= 0 && x+1 <= 18)
-//         {GameObject east = points[(int)x+1,(int)y];neighbors.Add(east);}
-//         if (y-1 >= 0 && y-1 <= 18)
-//         {GameObject south = points[(int)x,(int)y-1];neighbors.Add(south);}
-//         if (x-1 >= 0 && x-1 <= 18)
-//         {GameObject west = points[(int)x-1,(int)y];neighbors.Add(west);}
-
-//         foreach (GameObject n in neighbors)
-//         {
-//             Point p = n.GetComponent<Point>();
-
-//             if (n.tag == empty)
-//                 break;
-//             else if (n.tag == team)
-//                 killSurrounding(n);
-//             else
-//                 foreach (GameObject connection in p.connections) 
-//                 {
-//                     if (connection.tag == "empty")
-//                         return connection;
-                    
-//                     else if (connection.tag == n.tag)
-//                         killSurrounding(connection);
-
-//                     else if (connection.tag != n.tag)
-//                         break;
-//                 }
-//             destroyConnections(n);                
-//         }
-//         return null;
-//     }
-
-//     public void destroyConnections(GameObject point)
-//     {
-        
-//         Point p = point.GetComponent<Point>();
-
-//         List<GameObject> group = new List<GameObject>();
-
-//         foreach (GameObject connection in p.connections)
-//         {
-//             if (!group.Contains(connection))
-//                 group.Add(connection);
-
-//         }
-//     }
-
-
-
-
-//     public void destroyConnections(GameObject point)
-//     {
-        
-//         Point p = point.GetComponent<Point>();
-
-//         foreach (GameObject connection in p.connections)
-//         {
-//             Destroy(connection.transform.GetChild(0).gameObject);
-//             connection.tag = empty;
-//             Point c = connection.GetComponent<Point>();
-//             c.connections.Clear();
-//             Debug.Log("destroyed stone at ("+connection.transform.position.x+","+connection.transform.position.y+")");
-//         }
-//     }
-
-// }
-
-// private List<GameObject> getConnected(Stone stone)
-//     {
-//         List<GameObject> connections = new List<GameObject>();
-//         Stone firstStone = stone;
-
-//         if ((points[firstStone.x,firstStone.y+1].tag == firstStone.color) && (!connections.Contains(points[firstStone.x,firstStone.y+1])))
-//             connections.Add(points[firstStone.x,firstStone.y+1]);
-//         if (points[firstStone.x+1,firstStone.y].tag == firstStone.color && !connections.Contains(points[firstStone.x+1,firstStone.y]))
-//             connections.Add(points[firstStone.x+1,firstStone.y]);
-//         if (points[firstStone.x,firstStone.y-1].tag == firstStone.color && !connections.Contains(points[firstStone.x,firstStone.y-1]))
-//             connections.Add(points[firstStone.x,firstStone.y-1]);
-//         if (points[firstStone.x-1,firstStone.y].tag == firstStone.color && !connections.Contains(points[firstStone.x-1,firstStone.y]))
-//             connections.Add(points[firstStone.x-1,firstStone.y]);
-
-//         firstStone.connected = connections;
-//         // getConnected(stones[firstStone.x,firstStone.y+1]);
-//         // getConnected(stones[firstStone.x+1,firstStone.y]);
-//         // getConnected(stones[firstStone.x,firstStone.y-1]);
-//         // getConnected(stones[firstStone.x-1,firstStone.y]);
-
-//         return connections;
-        
-//     }
-
-
-//     private void scan(int c, int u)
-//     {
-//         private string color = points[c,u].tag;
-//         //Debug.Log(color);
-//     }
-// }
