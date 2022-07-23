@@ -14,7 +14,7 @@ using System;
 // Clearing a color is the process of emptying all points of that color that don’t reach empty.
     // the getReach and validGroup functions together calculate the 'reach' of a group of stones, which contains all of the liberties of the group
 // Starting with an empty grid, the players alternate turns, starting with Black.
-    // todo
+    // the Update function alternates between black and white moves
 // A turn is either a pass; or a move that doesn’t repeat an earlier grid coloring.[1]
     // todo
 // A move consists of coloring an empty point one’s own color; then clearing the opponent color, and then clearing one’s own color.
@@ -43,6 +43,7 @@ public class goban : MonoBehaviour
     private string empty = "empty";
     private string black = "black";
     private string white = "white";
+    private bool turnBlack = true;
 
     private void Awake()
     {
@@ -60,10 +61,17 @@ public class goban : MonoBehaviour
             Vector2Int hitposition = getPointIndex(info.transform.gameObject);
 
             if (Input.GetMouseButtonDown(0) && points[hitposition.x,hitposition.y].tag == empty)
+                if (turnBlack)
+                {
                 stones[hitposition.x,hitposition.y] = playStone(black,hitposition.x,hitposition.y);
-
-            if (Input.GetMouseButtonDown(1) && points[hitposition.x,hitposition.y].tag == empty)
+                turnBlack = false;
+                }
+                else
+                {
                 stones[hitposition.x,hitposition.y] = playStone(white,hitposition.x,hitposition.y);
+                turnBlack = true;
+                }
+                
         }
     }
 
@@ -251,7 +259,10 @@ public class goban : MonoBehaviour
     public void killGroup(Point point)
     {
         foreach (Point member in point.group)
-            Destroy(member.gameObject);
+        {
+            Destroy(member.gameObject.transform.GetChild(0).gameObject);
+            member.gameObject.tag = empty;
+        }
     }
 
     public void connectStones(Point point)

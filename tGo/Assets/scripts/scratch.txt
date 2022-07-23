@@ -1,6 +1,21 @@
 
 
+    // private void Update()
+    // {
+    //     RaycastHit info;
+    //     Ray ray = currentCamera.ScreenPointToRay(Input.mousePosition);
 
+    //     if(Physics.Raycast(ray, out info))
+    //     {
+    //         Vector2Int hitposition = getPointIndex(info.transform.gameObject);
+
+    //         if (Input.GetMouseButtonDown(0) && points[hitposition.x,hitposition.y].tag == empty)
+    //             stones[hitposition.x,hitposition.y] = playStone(black,hitposition.x,hitposition.y);
+
+    //         if (Input.GetMouseButtonDown(1) && points[hitposition.x,hitposition.y].tag == empty)
+    //             stones[hitposition.x,hitposition.y] = playStone(white,hitposition.x,hitposition.y);
+    //     }
+    // }
 
     //    public void getReach(Point point)
     // {
